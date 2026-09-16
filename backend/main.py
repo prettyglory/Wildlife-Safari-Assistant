@@ -1,6 +1,8 @@
 from io import BytesIO
+from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from PIL import Image, UnidentifiedImageError
 
@@ -19,6 +21,15 @@ from backend.services.safari_guide import (
 )
 
 from data.animal_profiles import ANIMAL_PROFILES
+
+
+# ============================================================
+# PATHS
+# ============================================================
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+FRONTEND_DIR = PROJECT_ROOT / "frontend"
 
 
 # ============================================================
@@ -45,7 +56,9 @@ class AnimalContext(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    message: str = Field(min_length=1)
+    message: str = Field(
+        min_length=1
+    )
 
     history: list[dict] = Field(
         default_factory=list
@@ -54,18 +67,6 @@ class ChatRequest(BaseModel):
     conversation_id: int | None = None
 
     animal_context: AnimalContext | None = None
-
-
-# ============================================================
-# ROOT
-# ============================================================
-
-@app.get("/")
-def root():
-    return {
-        "application": "Wildlife Safari Assistant",
-        "status": "running",
-    }
 
 
 # ============================================================
@@ -92,8 +93,12 @@ def model_information():
 
         return {
             "model": "wildlife_model.h5",
-            "input_shape": list(model.input_shape),
-            "output_shape": list(model.output_shape),
+            "input_shape": list(
+                model.input_shape
+            ),
+            "output_shape": list(
+                model.output_shape
+            ),
             "classes": CLASS_NAMES,
         }
 
@@ -133,23 +138,32 @@ async def detect_animal(
         if not contents:
             raise HTTPException(
                 status_code=400,
-                detail="The uploaded image is empty.",
+                detail=(
+                    "The uploaded image is empty."
+                ),
             )
 
         image = Image.open(
             BytesIO(contents)
         )
 
-        result = predict_animal(image)
+        result = predict_animal(
+            image
+        )
 
-        result["filename"] = file.filename
+        result["filename"] = (
+            file.filename
+        )
 
         return result
 
     except UnidentifiedImageError:
         raise HTTPException(
             status_code=400,
-            detail="The uploaded file is not a valid image.",
+            detail=(
+                "The uploaded file is not "
+                "a valid image."
+            ),
         )
 
     except HTTPException:
@@ -167,15 +181,25 @@ async def detect_animal(
 # ============================================================
 
 @app.get("/api/animals/{animal_name}")
-def animal_information(animal_name: str):
-    animal_key = animal_name.lower().strip()
+def animal_information(
+    animal_name: str
+):
+    animal_key = (
+        animal_name
+        .lower()
+        .strip()
+    )
 
-    profile = ANIMAL_PROFILES.get(animal_key)
+    profile = ANIMAL_PROFILES.get(
+        animal_key
+    )
 
     if not profile:
         raise HTTPException(
             status_code=404,
-            detail="Animal profile was not found.",
+            detail=(
+                "Animal profile was not found."
+            ),
         )
 
     return {
@@ -191,7 +215,9 @@ def animal_information(animal_name: str):
 @app.get("/api/safari-guide/health")
 async def safari_guide_health():
     try:
-        result = await check_safari_guide()
+        result = (
+            await check_safari_guide()
+        )
 
         return {
             "connected": True,
@@ -218,15 +244,23 @@ async def chat(
 
         if request.animal_context:
             animal_context = (
-                request.animal_context.model_dump()
+                request
+                .animal_context
+                .model_dump()
             )
 
-        result = await send_to_safari_guide(
-            api_key=GROQ_API_KEY,
-            message=request.message,
-            history=request.history,
-            conversation_id=request.conversation_id,
-            animal_context=animal_context,
+        result = (
+            await send_to_safari_guide(
+                api_key=GROQ_API_KEY,
+                message=request.message,
+                history=request.history,
+                conversation_id=(
+                    request.conversation_id
+                ),
+                animal_context=(
+                    animal_context
+                ),
+            )
         )
 
         return {
@@ -234,7 +268,9 @@ async def chat(
             "conversation_id": result[
                 "conversation_id"
             ],
-            "animal_context": animal_context,
+            "animal_context": (
+                animal_context
+            ),
         }
 
     except Exception as error:
@@ -242,3 +278,25 @@ async def chat(
             status_code=502,
             detail=str(error),
         )
+
+
+# ============================================================
+# FRONTEND
+# ============================================================
+# IMPORTANT:
+# Keep this mount AFTER all /api/... endpoints.
+# It serves:
+#   /
+#   /index.html
+#   /styles.css
+#   /app.js
+# from the frontend directory.
+
+app.mount(
+    "/",
+    StaticFiles(
+        directory=str(FRONTEND_DIR),
+        html=True,
+    ),
+    name="frontend",
+)
