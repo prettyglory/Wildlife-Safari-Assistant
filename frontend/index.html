@@ -669,7 +669,7 @@
 
 
             <!-- =================================================
-                 CHAT INPUT
+                 CHAT INPUT WITH VOICE
             ================================================== -->
 
             <form
@@ -686,11 +686,27 @@
                 ></textarea>
 
 
+                <!-- Voice Input -->
+
+                <button
+                    class="voice-button"
+                    id="voice-button"
+                    type="button"
+                    aria-label="Speak your question"
+                    title="Speak your question"
+                >
+                    🎙️
+                </button>
+
+
+                <!-- Send Message -->
+
                 <button
                     class="send-button"
                     id="send-button"
                     type="submit"
                     aria-label="Send message"
+                    title="Send message"
                 >
                     ➜
                 </button>
@@ -973,6 +989,7 @@
     ====================================================== -->
 
     <!-- Markdown parser -->
+
     <script
         src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"
         defer
@@ -980,13 +997,15 @@
 
 
     <!-- HTML sanitizer -->
+
     <script
         src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"
         defer
     ></script>
 
 
-    <!-- Wildlife Safari Assistant frontend logic -->
+    <!-- Wildlife Safari Assistant -->
+
     <script
         src="app.js"
         defer
