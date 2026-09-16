@@ -1086,6 +1086,192 @@ askAboutAnimalButton.addEventListener(
     }
 );
 
+// ============================================================
+// VOICE OUTPUT / TEXT TO SPEECH
+// ============================================================
+
+let activeSpeechButton = null;
+
+
+function getPlainTextFromMarkdown(text) {
+    const temporaryElement =
+        document.createElement("div");
+
+    temporaryElement.innerHTML =
+        formatAssistantText(text);
+
+    return (
+        temporaryElement.textContent ||
+        temporaryElement.innerText ||
+        ""
+    ).trim();
+}
+
+
+function stopSpeaking() {
+    if (
+        "speechSynthesis" in window
+    ) {
+        window.speechSynthesis.cancel();
+    }
+
+    if (activeSpeechButton) {
+        activeSpeechButton.textContent =
+            "🔊";
+
+        activeSpeechButton.title =
+            "Read response aloud";
+
+        activeSpeechButton.classList.remove(
+            "speaking"
+        );
+
+        activeSpeechButton =
+            null;
+    }
+}
+
+
+function speakAssistantResponse(
+    text,
+    button
+) {
+
+    if (
+        !("speechSynthesis" in window)
+    ) {
+        showError(
+            chatError,
+            "Voice output is not supported by this browser."
+        );
+
+        return;
+    }
+
+
+    // Clicking the active speaker button stops playback.
+    if (
+        activeSpeechButton === button &&
+        window.speechSynthesis.speaking
+    ) {
+        stopSpeaking();
+
+        return;
+    }
+
+
+    stopSpeaking();
+
+    hideError(
+        chatError
+    );
+
+
+    const plainText =
+        getPlainTextFromMarkdown(
+            text
+        );
+
+
+    if (!plainText) {
+        return;
+    }
+
+
+    const utterance =
+        new SpeechSynthesisUtterance(
+            plainText
+        );
+
+
+    utterance.lang =
+        "en-US";
+
+
+    utterance.rate =
+        1;
+
+
+    utterance.pitch =
+        1;
+
+
+    utterance.volume =
+        1;
+
+
+    utterance.onstart =
+        () => {
+
+            activeSpeechButton =
+                button;
+
+            button.textContent =
+                "⏹";
+
+            button.title =
+                "Stop reading";
+
+            button.classList.add(
+                "speaking"
+            );
+
+            conversationStatus.textContent =
+                "Reading response...";
+        };
+
+
+    utterance.onend =
+        () => {
+
+            button.textContent =
+                "🔊";
+
+            button.title =
+                "Read response aloud";
+
+            button.classList.remove(
+                "speaking"
+            );
+
+            activeSpeechButton =
+                null;
+
+            conversationStatus.textContent =
+                state.detectedAnimal
+                    ? `Using ${capitalizeWords(
+                        state.detectedAnimal
+                    )} context`
+                    : "Ready";
+        };
+
+
+    utterance.onerror =
+        event => {
+
+            console.error(
+                "Speech synthesis error:",
+                event.error
+            );
+
+            stopSpeaking();
+
+            if (
+                event.error !==
+                "canceled"
+            ) {
+                showError(
+                    chatError,
+                    "The Safari Guide response could not be read aloud."
+                );
+            }
+        };
+
+
+    window.speechSynthesis.speak(
+        utterance
+    );
+}
 
 // ============================================================
 // CHAT MESSAGE RENDERING
@@ -1095,6 +1281,145 @@ function renderMessage(
     role,
     text
 ) {
+
+    const message =
+        document.createElement(
+            "div"
+        );
+
+
+    message.className =
+        `message ${
+            role === "user"
+                ? "user-message"
+                : "assistant-message"
+        }`;
+
+
+    const avatar =
+        role === "user"
+            ? "👤"
+            : "🧭";
+
+
+    const author =
+        role === "user"
+            ? "You"
+            : "Safari Guide";
+
+
+    let formattedContent;
+
+
+    if (
+        role === "assistant"
+    ) {
+
+        formattedContent = `
+            <div class="assistant-response">
+                ${formatAssistantText(
+                    text
+                )}
+            </div>
+
+            <div class="assistant-response-actions">
+
+                <button
+                    class="speak-response-button"
+                    type="button"
+                    title="Read response aloud"
+                    aria-label="Read Safari Guide response aloud"
+                >
+                    🔊
+                </button>
+
+            </div>
+        `;
+
+    } else {
+
+        formattedContent = `
+            <p>
+                ${escapeHtml(
+                    text
+                ).replace(
+                    /\n/g,
+                    "<br>"
+                )}
+            </p>
+        `;
+    }
+
+
+    message.innerHTML = `
+        <div class="message-avatar">
+            ${avatar}
+        </div>
+
+        <div class="message-content">
+
+            <span class="message-author">
+                ${author}
+            </span>
+
+            ${formattedContent}
+
+        </div>
+    `;
+
+
+    chatMessages.appendChild(
+        message
+    );
+
+
+    if (
+        role === "assistant"
+    ) {
+
+        const speakButton =
+            message.querySelector(
+                ".speak-response-button"
+            );
+
+
+        if (
+            speakButton
+        ) {
+
+            if (
+                !(
+                    "speechSynthesis"
+                    in window
+                )
+            ) {
+
+                speakButton.disabled =
+                    true;
+
+                speakButton.title =
+                    "Voice output is not supported by this browser";
+
+            } else {
+
+                speakButton.addEventListener(
+                    "click",
+                    () => {
+
+                        speakAssistantResponse(
+                            text,
+                            speakButton
+                        );
+                    }
+                );
+            }
+        }
+    }
+
+
+    chatMessages.scrollTop =
+        chatMessages.scrollHeight;
+}
     const message =
         document.createElement(
             "div"
