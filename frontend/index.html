@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Wildlife Safari Assistant - AI wildlife identification and Tanzania safari guidance."
+    >
+
+    <title>Wildlife Safari Assistant</title>
+
+    <link
+        rel="stylesheet"
+        href="styles.css"
+    >
+</head>
+
+<body>
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="app-header">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                🐘
+            </div>
+
+            <div>
+                <h1>Wildlife Safari Assistant</h1>
+
+                <p>
+                    AI Wildlife Identification & Tanzania Safari Guide
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="system-status">
+
+            <div class="status-item">
+                <span
+                    class="status-dot"
+                    id="detector-status-dot"
+                ></span>
+
+                <span id="detector-status-text">
+                    Wildlife AI
+                </span>
+            </div>
+
+            <div class="status-item">
+                <span
+                    class="status-dot"
+                    id="guide-status-dot"
+                ></span>
+
+                <span id="guide-status-text">
+                    Safari Guide
+                </span>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <span class="hero-label">
+                EXPLORE TANZANIA WITH AI
+            </span>
+
+            <h2>
+                Discover wildlife.
+                <span>Plan unforgettable safaris.</span>
+            </h2>
+
+            <p>
+                Upload a wildlife photo to identify the animal,
+                learn about the species, and ask our Safari Guide
+                where you can see it across Tanzania.
+            </p>
+
+            <div class="hero-actions">
+
+                <button
+                    class="primary-button"
+                    id="hero-detect-button"
+                    type="button"
+                >
+                    Identify Wildlife
+                </button>
+
+                <button
+                    class="secondary-button"
+                    id="hero-chat-button"
+                    type="button"
+                >
+                    Ask Safari Guide
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="hero-stats">
+
+            <div class="stat-card">
+                <strong>9</strong>
+                <span>Wildlife Species</span>
+            </div>
+
+            <div class="stat-card">
+                <strong>AI</strong>
+                <span>Image Detection</span>
+            </div>
+
+            <div class="stat-card">
+                <strong>TZ</strong>
+                <span>Safari Guidance</span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MAIN APPLICATION
+    ====================================================== -->
+
+    <main class="main-layout">
+
+
+        <!-- =================================================
+             WILDLIFE DETECTOR
+        ================================================== -->
+
+        <section
+            class="panel detector-panel"
+            id="detector-section"
+        >
+
+            <div class="panel-heading">
+
+                <div>
+                    <span class="section-label">
+                        WILDLIFE VISION
+                    </span>
+
+                    <h2>
+                        Identify an Animal
+                    </h2>
+
+                    <p>
+                        Upload a clear wildlife image and let the
+                        trained AI model identify the species.
+                    </p>
+                </div>
+
+                <div class="panel-number">
+                    01
+                </div>
+
+            </div>
+
+
+            <!-- Upload Area -->
+
+            <div
+                class="upload-area"
+                id="upload-area"
+            >
+
+                <input
+                    type="file"
+                    id="animal-image"
+                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                    hidden
+                >
+
+                <div
+                    class="upload-placeholder"
+                    id="upload-placeholder"
+                >
+
+                    <div class="upload-icon">
+                        📷
+                    </div>
+
+                    <h3>
+                        Upload wildlife photo
+                    </h3>
+
+                    <p>
+                        JPG, JPEG, PNG or WEBP
+                    </p>
+
+                    <button
+                        class="upload-button"
+                        id="choose-image-button"
+                        type="button"
+                    >
+                        Choose Image
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="image-preview-container hidden"
+                    id="image-preview-container"
+                >
+
+                    <img
+                        id="image-preview"
+                        alt="Selected wildlife preview"
+                    >
+
+                    <button
+                        class="remove-image-button"
+                        id="remove-image-button"
+                        type="button"
+                        aria-label="Remove selected image"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Selected file information -->
+
+            <div
+                class="file-information hidden"
+                id="file-information"
+            >
+
+                <div>
+                    <span class="file-label">
+                        Selected image
+                    </span>
+
+                    <strong id="selected-file-name">
+                        -
+                    </strong>
+                </div>
+
+                <span id="selected-file-size">
+                    -
+                </span>
+
+            </div>
+
+
+            <button
+                class="primary-button full-width"
+                id="detect-button"
+                type="button"
+                disabled
+            >
+                <span id="detect-button-text">
+                    Detect Animal
+                </span>
+
+                <span
+                    class="button-loader hidden"
+                    id="detector-loader"
+                ></span>
+            </button>
+
+
+            <div
+                class="error-message hidden"
+                id="detector-error"
+            ></div>
+
+
+            <!-- =================================================
+                 DETECTION RESULT
+            ================================================== -->
+
+            <section
+                class="detection-result hidden"
+                id="detection-result"
+            >
+
+                <div class="result-header">
+
+                    <div>
+                        <span class="section-label">
+                            DETECTION RESULT
+                        </span>
+
+                        <h3 id="detected-animal">
+                            Animal
+                        </h3>
+
+                        <p id="prediction-status">
+                            Prediction completed
+                        </p>
+                    </div>
+
+
+                    <div class="confidence-badge">
+
+                        <strong id="confidence-value">
+                            0%
+                        </strong>
+
+                        <span>
+                            Confidence
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="confidence-container">
+
+                    <div class="confidence-info">
+
+                        <span>
+                            Model confidence
+                        </span>
+
+                        <strong id="confidence-label">
+                            -
+                        </strong>
+
+                    </div>
+
+                    <div class="confidence-track">
+
+                        <div
+                            class="confidence-fill"
+                            id="confidence-fill"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Top Matches -->
+
+                <div class="top-matches">
+
+                    <div class="subsection-heading">
+
+                        <h4>
+                            Top Matches
+                        </h4>
+
+                        <span>
+                            Model probability
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="matches-list"
+                        id="matches-list"
+                    ></div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+
+        <!-- =================================================
+             SAFARI GUIDE CHAT
+        ================================================== -->
+
+        <section
+            class="panel chat-panel"
+            id="chat-section"
+        >
+
+            <div class="panel-heading">
+
+                <div>
+                    <span class="section-label">
+                        TANZANIA SAFARI GUIDE
+                    </span>
+
+                    <h2>
+                        Ask Your Safari Guide
+                    </h2>
+
+                    <p>
+                        Ask about wildlife, national parks,
+                        destinations, safari routes and travel ideas.
+                    </p>
+                </div>
+
+                <div class="panel-number">
+                    02
+                </div>
+
+            </div>
+
+
+            <!-- Current Animal Context -->
+
+            <div
+                class="animal-context hidden"
+                id="animal-context"
+            >
+
+                <div class="context-icon">
+                    🐾
+                </div>
+
+                <div>
+
+                    <span>
+                        Current wildlife context
+                    </span>
+
+                    <strong id="context-animal">
+                        Elephant
+                    </strong>
+
+                </div>
+
+                <button
+                    id="clear-context-button"
+                    type="button"
+                    aria-label="Clear animal context"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <!-- Suggested Questions -->
+
+            <div class="suggested-prompts">
+
+                <button
+                    class="prompt-chip"
+                    type="button"
+                    data-prompt="Which national park should I visit in Tanzania?"
+                >
+                    Best national parks
+                </button>
+
+                <button
+                    class="prompt-chip"
+                    type="button"
+                    data-prompt="Where can I see lions in Tanzania?"
+                >
+                    Where to see lions
+                </button>
+
+                <button
+                    class="prompt-chip"
+                    type="button"
+                    data-prompt="Plan a 3-day wildlife safari in Tanzania."
+                >
+                    Plan a 3-day safari
+                </button>
+
+            </div>
+
+
+            <!-- Chat Messages -->
+
+            <div
+                class="chat-messages"
+                id="chat-messages"
+            >
+
+                <div class="message assistant-message">
+
+                    <div class="message-avatar">
+                        🧭
+                    </div>
+
+                    <div class="message-content">
+
+                        <span class="message-author">
+                            Safari Guide
+                        </span>
+
+                        <p>
+                            Karibu! I can help you explore Tanzania's
+                            wildlife, national parks and safari destinations.
+                            You can also identify an animal from a photo and
+                            ask me follow-up questions about it.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Typing -->
+
+            <div
+                class="typing-indicator hidden"
+                id="typing-indicator"
+            >
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+                <small>
+                    Safari Guide is thinking...
+                </small>
+
+            </div>
+
+
+            <!-- Chat Input -->
+
+            <form
+                class="chat-form"
+                id="chat-form"
+            >
+
+                <textarea
+                    id="chat-input"
+                    placeholder="Ask about wildlife or your Tanzania safari..."
+                    rows="1"
+                    maxlength="2000"
+                    required
+                ></textarea>
+
+                <button
+                    class="send-button"
+                    id="send-button"
+                    type="submit"
+                    aria-label="Send message"
+                >
+                    ➜
+                </button>
+
+            </form>
+
+
+            <div class="chat-actions">
+
+                <button
+                    class="text-button"
+                    id="new-chat-button"
+                    type="button"
+                >
+                    ＋ New conversation
+                </button>
+
+                <span id="conversation-status">
+                    Ready
+                </span>
+
+            </div>
+
+
+            <div
+                class="error-message hidden"
+                id="chat-error"
+            ></div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         ANIMAL PROFILE
+    ====================================================== -->
+
+    <section
+        class="profile-section hidden"
+        id="animal-profile-section"
+    >
+
+        <div class="profile-heading">
+
+            <div>
+
+                <span class="section-label">
+                    SPECIES INFORMATION
+                </span>
+
+                <h2 id="profile-animal-name">
+                    Elephant
+                </h2>
+
+                <p
+                    class="scientific-name"
+                    id="profile-scientific-name"
+                >
+                    Scientific name
+                </p>
+
+            </div>
+
+
+            <button
+                class="secondary-button"
+                id="ask-about-animal-button"
+                type="button"
+            >
+                Ask Safari Guide
+            </button>
+
+        </div>
+
+
+        <div class="profile-grid">
+
+            <article class="profile-card">
+
+                <span class="profile-icon">
+                    🌿
+                </span>
+
+                <h3>
+                    Habitat
+                </h3>
+
+                <p id="profile-habitat">
+                    -
+                </p>
+
+            </article>
+
+
+            <article class="profile-card">
+
+                <span class="profile-icon">
+                    🌱
+                </span>
+
+                <h3>
+                    Diet
+                </h3>
+
+                <p id="profile-diet">
+                    -
+                </p>
+
+            </article>
+
+
+            <article class="profile-card">
+
+                <span class="profile-icon">
+                    👥
+                </span>
+
+                <h3>
+                    Social Behavior
+                </h3>
+
+                <p id="profile-social">
+                    -
+                </p>
+
+            </article>
+
+
+            <article class="profile-card">
+
+                <span class="profile-icon">
+                    🍃
+                </span>
+
+                <h3>
+                    Feeding Behavior
+                </h3>
+
+                <p id="profile-feeding">
+                    -
+                </p>
+
+            </article>
+
+
+            <article class="profile-card">
+
+                <span class="profile-icon">
+                    🐾
+                </span>
+
+                <h3>
+                    Reproduction
+                </h3>
+
+                <p id="profile-reproduction">
+                    -
+                </p>
+
+            </article>
+
+
+            <article class="profile-card">
+
+                <span class="profile-icon">
+                    ⏳
+                </span>
+
+                <h3>
+                    Lifespan
+                </h3>
+
+                <p id="profile-lifespan">
+                    -
+                </p>
+
+            </article>
+
+
+            <article class="profile-card profile-card-wide">
+
+                <span class="profile-icon">
+                    🛡️
+                </span>
+
+                <h3>
+                    Conservation
+                </h3>
+
+                <p id="profile-conservation">
+                    -
+                </p>
+
+            </article>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="app-footer">
+
+        <div>
+            <strong>
+                Wildlife Safari Assistant
+            </strong>
+
+            <p>
+                AI-powered wildlife identification and Tanzania safari guidance.
+            </p>
+        </div>
+
+        <div class="footer-badge">
+            Built with TensorFlow + FastAPI + Groq
+        </div>
+
+    </footer>
+
+
+    <script
+        src="app.js"
+        defer
+    ></script>
+
+</body>
+</html>
