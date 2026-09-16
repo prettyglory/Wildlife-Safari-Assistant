@@ -171,6 +171,9 @@ const chatInput =
 const sendButton =
     document.querySelector("#send-button");
 
+const voiceButton =
+    document.querySelector("#voice-button");
+
 const typingIndicator =
     document.querySelector("#typing-indicator");
 
@@ -197,7 +200,8 @@ function capitalizeWords(value) {
         .replace(/_/g, " ")
         .replace(
             /\b\w/g,
-            character => character.toUpperCase()
+            character =>
+                character.toUpperCase()
         );
 }
 
@@ -208,7 +212,9 @@ function formatFileSize(bytes) {
     }
 
     if (bytes < 1024 * 1024) {
-        return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(
+            bytes / 1024
+        ).toFixed(1)} KB`;
     }
 
     return `${(
@@ -231,25 +237,51 @@ function confidenceText(confidence) {
 }
 
 
-function showError(element, message) {
-    element.textContent = message;
-    element.classList.remove("hidden");
+function showError(
+    element,
+    message
+) {
+    element.textContent =
+        message;
+
+    element.classList.remove(
+        "hidden"
+    );
 }
 
 
 function hideError(element) {
-    element.textContent = "";
-    element.classList.add("hidden");
+    element.textContent =
+        "";
+
+    element.classList.add(
+        "hidden"
+    );
 }
 
 
 function escapeHtml(value) {
     return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 }
 
 
@@ -261,10 +293,6 @@ function formatAssistantText(text) {
     const content =
         String(text || "");
 
-    /*
-     * Marked converts Markdown into HTML.
-     * DOMPurify sanitizes the generated HTML.
-     */
     if (
         window.marked &&
         window.DOMPurify
@@ -275,19 +303,21 @@ function formatAssistantText(text) {
         });
 
         const renderedMarkdown =
-            marked.parse(content);
+            marked.parse(
+                content
+            );
 
         return DOMPurify.sanitize(
             renderedMarkdown
         );
     }
 
-    /*
-     * Fallback if Marked or DOMPurify
-     * cannot be loaded.
-     */
-    return escapeHtml(content)
-        .replace(/\n/g, "<br>");
+    return escapeHtml(
+        content
+    ).replace(
+        /\n/g,
+        "<br>"
+    );
 }
 
 
@@ -327,6 +357,7 @@ async function checkSystemHealth() {
 
             detectorStatusText.textContent =
                 "Wildlife AI Online";
+
         } else {
             throw new Error(
                 "Wildlife model unavailable"
@@ -374,6 +405,7 @@ async function checkSystemHealth() {
 
             guideStatusText.textContent =
                 "Safari Guide Online";
+
         } else {
             throw new Error(
                 "Safari Guide disconnected"
@@ -417,7 +449,8 @@ heroChatButton.addEventListener(
         });
 
         setTimeout(
-            () => chatInput.focus(),
+            () =>
+                chatInput.focus(),
             400
         );
     }
@@ -442,10 +475,7 @@ chooseImageButton.addEventListener(
 uploadArea.addEventListener(
     "click",
     event => {
-        /*
-         * Prevent the upload area from opening
-         * the file picker when clicking remove.
-         */
+
         if (
             event.target ===
             removeImageButton
@@ -453,10 +483,6 @@ uploadArea.addEventListener(
             return;
         }
 
-        /*
-         * The Choose Image button already
-         * handles its own click.
-         */
         if (
             event.target ===
             chooseImageButton
@@ -476,7 +502,9 @@ fileInput.addEventListener(
             fileInput.files[0];
 
         if (file) {
-            selectImage(file);
+            selectImage(
+                file
+            );
         }
     }
 );
@@ -487,7 +515,9 @@ fileInput.addEventListener(
 // ============================================================
 
 function selectImage(file) {
-    hideError(detectorError);
+    hideError(
+        detectorError
+    );
 
     const allowedTypes = [
         "image/jpeg",
@@ -645,10 +675,13 @@ uploadArea.addEventListener(
     "drop",
     event => {
         const file =
-            event.dataTransfer.files[0];
+            event.dataTransfer
+                .files[0];
 
         if (file) {
-            selectImage(file);
+            selectImage(
+                file
+            );
         }
     }
 );
@@ -665,7 +698,9 @@ detectButton.addEventListener(
 
 
 async function detectWildlife() {
-    if (!state.selectedFile) {
+    if (
+        !state.selectedFile
+    ) {
         return;
     }
 
@@ -696,8 +731,11 @@ async function detectWildlife() {
             await fetch(
                 `${API_BASE_URL}/api/detect`,
                 {
-                    method: "POST",
-                    body: formData
+                    method:
+                        "POST",
+
+                    body:
+                        formData
                 }
             );
 
@@ -801,11 +839,14 @@ function renderDetection(data) {
             100
         )}%`;
 
-    if (data.supported) {
+    if (
+        data.supported
+    ) {
         predictionStatus.textContent =
             `Recognized as ${capitalizeWords(
                 data.animal
             )}.`;
+
     } else {
         predictionStatus.textContent =
             `Best model match: ${capitalizeWords(
@@ -814,7 +855,8 @@ function renderDetection(data) {
     }
 
     renderTopMatches(
-        data.top_matches || []
+        data.top_matches ||
+        []
     );
 }
 
@@ -1037,7 +1079,8 @@ askAboutAnimalButton.addEventListener(
         });
 
         setTimeout(
-            () => chatInput.focus(),
+            () =>
+                chatInput.focus(),
             400
         );
     }
@@ -1086,6 +1129,7 @@ function renderMessage(
                 )}
             </div>
         `;
+
     } else {
         formattedContent = `
             <p>
@@ -1175,6 +1219,11 @@ async function sendChatMessage(
     sendButton.disabled =
         true;
 
+    if (voiceButton) {
+        voiceButton.disabled =
+            true;
+    }
+
     conversationStatus.textContent =
         "Safari Guide is thinking...";
 
@@ -1204,7 +1253,8 @@ async function sendChatMessage(
             await fetch(
                 `${API_BASE_URL}/api/chat`,
                 {
-                    method: "POST",
+                    method:
+                        "POST",
 
                     headers: {
                         "Content-Type":
@@ -1238,12 +1288,18 @@ async function sendChatMessage(
 
         state.history.push(
             {
-                role: "user",
-                content: message
+                role:
+                    "user",
+
+                content:
+                    message
             },
             {
-                role: "assistant",
-                content: data.reply
+                role:
+                    "assistant",
+
+                content:
+                    data.reply
             }
         );
 
@@ -1271,6 +1327,14 @@ async function sendChatMessage(
         sendButton.disabled =
             false;
 
+        if (
+            voiceButton &&
+            recognition
+        ) {
+            voiceButton.disabled =
+                false;
+        }
+
         chatInput.focus();
     }
 }
@@ -1290,7 +1354,8 @@ document
                 "click",
                 () => {
                     const prompt =
-                        button.dataset.prompt;
+                        button.dataset
+                            .prompt;
 
                     chatInput.value =
                         prompt;
@@ -1316,6 +1381,13 @@ newChatButton.addEventListener(
 
         state.history =
             [];
+
+        if (
+            recognition &&
+            isListening
+        ) {
+            recognition.stop();
+        }
 
         chatMessages.innerHTML = `
             <div class="message assistant-message">
@@ -1360,6 +1432,330 @@ newChatButton.addEventListener(
 
 
 // ============================================================
+// VOICE INPUT
+// ============================================================
+
+const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+
+let recognition =
+    null;
+
+let isListening =
+    false;
+
+let voiceTextBeforeListening =
+    "";
+
+
+// ============================================================
+// VOICE RECOGNITION AVAILABLE
+// ============================================================
+
+if (
+    SpeechRecognition &&
+    voiceButton
+) {
+
+    recognition =
+        new SpeechRecognition();
+
+
+    recognition.continuous =
+        false;
+
+
+    recognition.interimResults =
+        true;
+
+
+    recognition.maxAlternatives =
+        1;
+
+
+    recognition.lang =
+        navigator.language ||
+        "en-US";
+
+
+    // --------------------------------------------------------
+    // VOICE BUTTON
+    // --------------------------------------------------------
+
+    voiceButton.addEventListener(
+        "click",
+        () => {
+
+            hideError(
+                chatError
+            );
+
+
+            // Stop if currently listening
+            if (
+                isListening
+            ) {
+                recognition.stop();
+
+                return;
+            }
+
+
+            voiceTextBeforeListening =
+                chatInput.value.trim();
+
+
+            try {
+                recognition.start();
+
+            } catch (error) {
+                console.error(
+                    "Could not start speech recognition:",
+                    error
+                );
+
+                showError(
+                    chatError,
+                    "Microphone could not be started. Please try again."
+                );
+            }
+        }
+    );
+
+
+    // --------------------------------------------------------
+    // MICROPHONE STARTED
+    // --------------------------------------------------------
+
+    recognition.onstart =
+        () => {
+            isListening =
+                true;
+
+            voiceButton.classList.add(
+                "listening"
+            );
+
+            voiceButton.textContent =
+                "⏹";
+
+            voiceButton.setAttribute(
+                "aria-label",
+                "Stop listening"
+            );
+
+            voiceButton.title =
+                "Stop listening";
+
+            conversationStatus.textContent =
+                "Listening...";
+        };
+
+
+    // --------------------------------------------------------
+    // SPEECH RESULT
+    // --------------------------------------------------------
+
+    recognition.onresult =
+        event => {
+
+            let transcript =
+                "";
+
+            for (
+                let index =
+                    event.resultIndex;
+
+                index <
+                event.results.length;
+
+                index++
+            ) {
+                transcript +=
+                    event.results[
+                        index
+                    ][0].transcript;
+            }
+
+
+            const spokenText =
+                transcript.trim();
+
+
+            if (
+                voiceTextBeforeListening
+            ) {
+                chatInput.value =
+                    `${voiceTextBeforeListening} ${spokenText}`.trim();
+
+            } else {
+                chatInput.value =
+                    spokenText;
+            }
+
+
+            resizeChatInput();
+        };
+
+
+    // --------------------------------------------------------
+    // MICROPHONE ENDED
+    // --------------------------------------------------------
+
+    recognition.onend =
+        () => {
+
+            isListening =
+                false;
+
+            voiceButton.classList.remove(
+                "listening"
+            );
+
+            voiceButton.textContent =
+                "🎙️";
+
+            voiceButton.setAttribute(
+                "aria-label",
+                "Speak your question"
+            );
+
+            voiceButton.title =
+                "Speak your question";
+
+
+            conversationStatus.textContent =
+                state.detectedAnimal
+                    ? `Using ${capitalizeWords(
+                        state.detectedAnimal
+                    )} context`
+                    : "Ready";
+
+
+            chatInput.focus();
+        };
+
+
+    // --------------------------------------------------------
+    // MICROPHONE ERROR
+    // --------------------------------------------------------
+
+    recognition.onerror =
+        event => {
+
+            console.error(
+                "Speech recognition error:",
+                event.error
+            );
+
+
+            isListening =
+                false;
+
+
+            voiceButton.classList.remove(
+                "listening"
+            );
+
+
+            voiceButton.textContent =
+                "🎙️";
+
+
+            voiceButton.setAttribute(
+                "aria-label",
+                "Speak your question"
+            );
+
+
+            voiceButton.title =
+                "Speak your question";
+
+
+            let errorMessage =
+                "Voice input could not be started.";
+
+
+            if (
+                event.error ===
+                "not-allowed"
+            ) {
+                errorMessage =
+                    "Microphone permission was denied. Please allow microphone access in your browser.";
+            }
+
+
+            if (
+                event.error ===
+                "audio-capture"
+            ) {
+                errorMessage =
+                    "No microphone was found. Check your microphone settings.";
+            }
+
+
+            if (
+                event.error ===
+                "no-speech"
+            ) {
+                errorMessage =
+                    "No speech was detected. Please speak and try again.";
+            }
+
+
+            if (
+                event.error ===
+                "network"
+            ) {
+                errorMessage =
+                    "Voice recognition could not connect. Check your internet connection and try again.";
+            }
+
+
+            if (
+                event.error !==
+                "aborted"
+            ) {
+                showError(
+                    chatError,
+                    errorMessage
+                );
+            }
+
+
+            conversationStatus.textContent =
+                state.detectedAnimal
+                    ? `Using ${capitalizeWords(
+                        state.detectedAnimal
+                    )} context`
+                    : "Ready";
+        };
+
+
+// ============================================================
+// VOICE RECOGNITION NOT AVAILABLE
+// ============================================================
+
+} else if (
+    voiceButton
+) {
+
+    voiceButton.disabled =
+        true;
+
+    voiceButton.title =
+        "Voice input is not supported by this browser";
+
+    voiceButton.setAttribute(
+        "aria-label",
+        "Voice input unavailable"
+    );
+}
+
+
+// ============================================================
 // TEXTAREA AUTO RESIZE
 // ============================================================
 
@@ -1389,6 +1785,7 @@ chatInput.addEventListener(
 chatInput.addEventListener(
     "keydown",
     event => {
+
         if (
             event.key === "Enter" &&
             !event.shiftKey
@@ -1406,10 +1803,12 @@ chatInput.addEventListener(
 // ============================================================
 
 async function initializeApplication() {
+
     conversationStatus.textContent =
         "Checking services...";
 
     await checkSystemHealth();
+
 
     conversationStatus.textContent =
         state.detectedAnimal
