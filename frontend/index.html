@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -13,15 +15,20 @@
         content="Wildlife Safari Assistant - AI wildlife identification and Tanzania safari guidance."
     >
 
-    <title>Wildlife Safari Assistant</title>
+    <title>
+        Wildlife Safari Assistant
+    </title>
 
     <link
         rel="stylesheet"
         href="styles.css"
     >
+
 </head>
 
+
 <body>
+
 
     <!-- =====================================================
          HEADER
@@ -36,11 +43,15 @@
             </div>
 
             <div>
-                <h1>Wildlife Safari Assistant</h1>
+
+                <h1>
+                    Wildlife Safari Assistant
+                </h1>
 
                 <p>
                     AI Wildlife Identification & Tanzania Safari Guide
                 </p>
+
             </div>
 
         </div>
@@ -49,6 +60,7 @@
         <div class="system-status">
 
             <div class="status-item">
+
                 <span
                     class="status-dot"
                     id="detector-status-dot"
@@ -57,9 +69,12 @@
                 <span id="detector-status-text">
                     Wildlife AI
                 </span>
+
             </div>
 
+
             <div class="status-item">
+
                 <span
                     class="status-dot"
                     id="guide-status-dot"
@@ -68,11 +83,13 @@
                 <span id="guide-status-text">
                     Safari Guide
                 </span>
+
             </div>
 
         </div>
 
     </header>
+
 
 
     <!-- =====================================================
@@ -87,16 +104,21 @@
                 EXPLORE TANZANIA WITH AI
             </span>
 
+
             <h2>
                 Discover wildlife.
-                <span>Plan unforgettable safaris.</span>
+                <span>
+                    Plan unforgettable safaris.
+                </span>
             </h2>
+
 
             <p>
                 Upload a wildlife photo to identify the animal,
                 learn about the species, and ask our Safari Guide
                 where you can see it across Tanzania.
             </p>
+
 
             <div class="hero-actions">
 
@@ -107,6 +129,7 @@
                 >
                     Identify Wildlife
                 </button>
+
 
                 <button
                     class="secondary-button"
@@ -121,26 +144,51 @@
         </div>
 
 
+
         <div class="hero-stats">
 
             <div class="stat-card">
-                <strong>9</strong>
-                <span>Wildlife Species</span>
+
+                <strong>
+                    9
+                </strong>
+
+                <span>
+                    Wildlife Species
+                </span>
+
             </div>
 
-            <div class="stat-card">
-                <strong>AI</strong>
-                <span>Image Detection</span>
-            </div>
 
             <div class="stat-card">
-                <strong>TZ</strong>
-                <span>Safari Guidance</span>
+
+                <strong>
+                    AI
+                </strong>
+
+                <span>
+                    Image Detection
+                </span>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <strong>
+                    TZ
+                </strong>
+
+                <span>
+                    Safari Guidance
+                </span>
+
             </div>
 
         </div>
 
     </section>
+
 
 
     <!-- =====================================================
@@ -162,19 +210,24 @@
             <div class="panel-heading">
 
                 <div>
+
                     <span class="section-label">
                         WILDLIFE VISION
                     </span>
+
 
                     <h2>
                         Identify an Animal
                     </h2>
 
+
                     <p>
                         Upload a clear wildlife image and let the
                         trained AI model identify the species.
                     </p>
+
                 </div>
+
 
                 <div class="panel-number">
                     01
@@ -183,7 +236,10 @@
             </div>
 
 
-            <!-- Upload Area -->
+
+            <!-- =================================================
+                 IMAGE UPLOAD
+            ================================================== -->
 
             <div
                 class="upload-area"
@@ -197,6 +253,7 @@
                     hidden
                 >
 
+
                 <div
                     class="upload-placeholder"
                     id="upload-placeholder"
@@ -206,13 +263,16 @@
                         📷
                     </div>
 
+
                     <h3>
                         Upload wildlife photo
                     </h3>
 
+
                     <p>
                         JPG, JPEG, PNG or WEBP
                     </p>
+
 
                     <button
                         class="upload-button"
@@ -225,6 +285,9 @@
                 </div>
 
 
+
+                <!-- Image Preview -->
+
                 <div
                     class="image-preview-container hidden"
                     id="image-preview-container"
@@ -234,6 +297,7 @@
                         id="image-preview"
                         alt="Selected wildlife preview"
                     >
+
 
                     <button
                         class="remove-image-button"
@@ -249,7 +313,10 @@
             </div>
 
 
-            <!-- Selected file information -->
+
+            <!-- =================================================
+                 SELECTED FILE INFORMATION
+            ================================================== -->
 
             <div
                 class="file-information hidden"
@@ -257,14 +324,18 @@
             >
 
                 <div>
+
                     <span class="file-label">
                         Selected image
                     </span>
 
+
                     <strong id="selected-file-name">
                         -
                     </strong>
+
                 </div>
+
 
                 <span id="selected-file-size">
                     -
@@ -273,27 +344,37 @@
             </div>
 
 
+
+            <!-- =================================================
+                 DETECT BUTTON
+            ================================================== -->
+
             <button
                 class="primary-button full-width"
                 id="detect-button"
                 type="button"
                 disabled
             >
+
                 <span id="detect-button-text">
                     Detect Animal
                 </span>
+
 
                 <span
                     class="button-loader hidden"
                     id="detector-loader"
                 ></span>
+
             </button>
+
 
 
             <div
                 class="error-message hidden"
                 id="detector-error"
             ></div>
+
 
 
             <!-- =================================================
@@ -308,18 +389,23 @@
                 <div class="result-header">
 
                     <div>
+
                         <span class="section-label">
                             DETECTION RESULT
                         </span>
+
 
                         <h3 id="detected-animal">
                             Animal
                         </h3>
 
+
                         <p id="prediction-status">
                             Prediction completed
                         </p>
+
                     </div>
+
 
 
                     <div class="confidence-badge">
@@ -327,6 +413,7 @@
                         <strong id="confidence-value">
                             0%
                         </strong>
+
 
                         <span>
                             Confidence
@@ -337,6 +424,9 @@
                 </div>
 
 
+
+                <!-- Confidence -->
+
                 <div class="confidence-container">
 
                     <div class="confidence-info">
@@ -345,11 +435,13 @@
                             Model confidence
                         </span>
 
+
                         <strong id="confidence-label">
                             -
                         </strong>
 
                     </div>
+
 
                     <div class="confidence-track">
 
@@ -363,7 +455,10 @@
                 </div>
 
 
-                <!-- Top Matches -->
+
+                <!-- =================================================
+                     TOP MATCHES
+                ================================================== -->
 
                 <div class="top-matches">
 
@@ -373,11 +468,13 @@
                             Top Matches
                         </h4>
 
+
                         <span>
                             Model probability
                         </span>
 
                     </div>
+
 
                     <div
                         class="matches-list"
@@ -404,19 +501,24 @@
             <div class="panel-heading">
 
                 <div>
+
                     <span class="section-label">
                         TANZANIA SAFARI GUIDE
                     </span>
+
 
                     <h2>
                         Ask Your Safari Guide
                     </h2>
 
+
                     <p>
                         Ask about wildlife, national parks,
                         destinations, safari routes and travel ideas.
                     </p>
+
                 </div>
+
 
                 <div class="panel-number">
                     02
@@ -425,7 +527,10 @@
             </div>
 
 
-            <!-- Current Animal Context -->
+
+            <!-- =================================================
+                 CURRENT ANIMAL CONTEXT
+            ================================================== -->
 
             <div
                 class="animal-context hidden"
@@ -436,17 +541,20 @@
                     🐾
                 </div>
 
+
                 <div>
 
                     <span>
                         Current wildlife context
                     </span>
 
+
                     <strong id="context-animal">
                         Elephant
                     </strong>
 
                 </div>
+
 
                 <button
                     id="clear-context-button"
@@ -459,7 +567,10 @@
             </div>
 
 
-            <!-- Suggested Questions -->
+
+            <!-- =================================================
+                 SUGGESTED QUESTIONS
+            ================================================== -->
 
             <div class="suggested-prompts">
 
@@ -471,6 +582,7 @@
                     Best national parks
                 </button>
 
+
                 <button
                     class="prompt-chip"
                     type="button"
@@ -478,6 +590,7 @@
                 >
                     Where to see lions
                 </button>
+
 
                 <button
                     class="prompt-chip"
@@ -490,7 +603,10 @@
             </div>
 
 
-            <!-- Chat Messages -->
+
+            <!-- =================================================
+                 CHAT MESSAGES
+            ================================================== -->
 
             <div
                 class="chat-messages"
@@ -503,18 +619,24 @@
                         🧭
                     </div>
 
+
                     <div class="message-content">
 
                         <span class="message-author">
                             Safari Guide
                         </span>
 
-                        <p>
-                            Karibu! I can help you explore Tanzania's
-                            wildlife, national parks and safari destinations.
-                            You can also identify an animal from a photo and
-                            ask me follow-up questions about it.
-                        </p>
+
+                        <div class="assistant-response">
+
+                            <p>
+                                Karibu! I can help you explore Tanzania's
+                                wildlife, national parks and safari destinations.
+                                You can also identify an animal from a photo and
+                                ask me follow-up questions about it.
+                            </p>
+
+                        </div>
 
                     </div>
 
@@ -523,7 +645,10 @@
             </div>
 
 
-            <!-- Typing -->
+
+            <!-- =================================================
+                 TYPING INDICATOR
+            ================================================== -->
 
             <div
                 class="typing-indicator hidden"
@@ -534,6 +659,7 @@
                 <span></span>
                 <span></span>
 
+
                 <small>
                     Safari Guide is thinking...
                 </small>
@@ -541,7 +667,10 @@
             </div>
 
 
-            <!-- Chat Input -->
+
+            <!-- =================================================
+                 CHAT INPUT
+            ================================================== -->
 
             <form
                 class="chat-form"
@@ -556,6 +685,7 @@
                     required
                 ></textarea>
 
+
                 <button
                     class="send-button"
                     id="send-button"
@@ -568,6 +698,9 @@
             </form>
 
 
+
+            <!-- Chat Controls -->
+
             <div class="chat-actions">
 
                 <button
@@ -578,11 +711,13 @@
                     ＋ New conversation
                 </button>
 
+
                 <span id="conversation-status">
                     Ready
                 </span>
 
             </div>
+
 
 
             <div
@@ -613,9 +748,11 @@
                     SPECIES INFORMATION
                 </span>
 
+
                 <h2 id="profile-animal-name">
                     Elephant
                 </h2>
+
 
                 <p
                     class="scientific-name"
@@ -625,6 +762,7 @@
                 </p>
 
             </div>
+
 
 
             <button
@@ -638,7 +776,11 @@
         </div>
 
 
+
         <div class="profile-grid">
+
+
+            <!-- Habitat -->
 
             <article class="profile-card">
 
@@ -646,9 +788,11 @@
                     🌿
                 </span>
 
+
                 <h3>
                     Habitat
                 </h3>
+
 
                 <p id="profile-habitat">
                     -
@@ -657,15 +801,20 @@
             </article>
 
 
+
+            <!-- Diet -->
+
             <article class="profile-card">
 
                 <span class="profile-icon">
                     🌱
                 </span>
 
+
                 <h3>
                     Diet
                 </h3>
+
 
                 <p id="profile-diet">
                     -
@@ -674,15 +823,20 @@
             </article>
 
 
+
+            <!-- Social Behavior -->
+
             <article class="profile-card">
 
                 <span class="profile-icon">
                     👥
                 </span>
 
+
                 <h3>
                     Social Behavior
                 </h3>
+
 
                 <p id="profile-social">
                     -
@@ -691,15 +845,20 @@
             </article>
 
 
+
+            <!-- Feeding Behavior -->
+
             <article class="profile-card">
 
                 <span class="profile-icon">
                     🍃
                 </span>
 
+
                 <h3>
                     Feeding Behavior
                 </h3>
+
 
                 <p id="profile-feeding">
                     -
@@ -708,15 +867,20 @@
             </article>
 
 
+
+            <!-- Reproduction -->
+
             <article class="profile-card">
 
                 <span class="profile-icon">
                     🐾
                 </span>
 
+
                 <h3>
                     Reproduction
                 </h3>
+
 
                 <p id="profile-reproduction">
                     -
@@ -725,15 +889,20 @@
             </article>
 
 
+
+            <!-- Lifespan -->
+
             <article class="profile-card">
 
                 <span class="profile-icon">
                     ⏳
                 </span>
 
+
                 <h3>
                     Lifespan
                 </h3>
+
 
                 <p id="profile-lifespan">
                     -
@@ -742,15 +911,22 @@
             </article>
 
 
-            <article class="profile-card profile-card-wide">
+
+            <!-- Conservation -->
+
+            <article
+                class="profile-card profile-card-wide"
+            >
 
                 <span class="profile-icon">
                     🛡️
                 </span>
 
+
                 <h3>
                     Conservation
                 </h3>
+
 
                 <p id="profile-conservation">
                     -
@@ -771,14 +947,18 @@
     <footer class="app-footer">
 
         <div>
+
             <strong>
                 Wildlife Safari Assistant
             </strong>
 
+
             <p>
                 AI-powered wildlife identification and Tanzania safari guidance.
             </p>
+
         </div>
+
 
         <div class="footer-badge">
             Built with TensorFlow + FastAPI + Groq
@@ -787,20 +967,32 @@
     </footer>
 
 
-   <!-- Markdown renderer -->
-<script
-    src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"
-></script>
 
-<!-- Sanitizes rendered Markdown -->
-<script
-    src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"
-></script>
+    <!-- =====================================================
+         JAVASCRIPT LIBRARIES
+    ====================================================== -->
 
-<script
-    src="app.js"
-    defer
-></script>
+    <!-- Markdown parser -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"
+        defer
+    ></script>
+
+
+    <!-- HTML sanitizer -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"
+        defer
+    ></script>
+
+
+    <!-- Wildlife Safari Assistant frontend logic -->
+    <script
+        src="app.js"
+        defer
+    ></script>
+
 
 </body>
+
 </html>
