@@ -19,6 +19,13 @@ const state = {
 };
 
 
+// Voice state
+let recognition = null;
+let isListening = false;
+let voiceTextBeforeListening = "";
+let activeSpeechButton = null;
+
+
 // ============================================================
 // DOM ELEMENTS
 // ============================================================
@@ -35,20 +42,17 @@ const guideStatusDot =
 const guideStatusText =
     document.querySelector("#guide-status-text");
 
-
 const detectorSection =
     document.querySelector("#detector-section");
 
 const chatSection =
     document.querySelector("#chat-section");
 
-
 const heroDetectButton =
     document.querySelector("#hero-detect-button");
 
 const heroChatButton =
     document.querySelector("#hero-chat-button");
-
 
 const uploadArea =
     document.querySelector("#upload-area");
@@ -92,7 +96,6 @@ const detectorLoader =
 const detectorError =
     document.querySelector("#detector-error");
 
-
 const detectionResult =
     document.querySelector("#detection-result");
 
@@ -114,7 +117,6 @@ const confidenceFill =
 const matchesList =
     document.querySelector("#matches-list");
 
-
 const animalContext =
     document.querySelector("#animal-context");
 
@@ -123,7 +125,6 @@ const contextAnimal =
 
 const clearContextButton =
     document.querySelector("#clear-context-button");
-
 
 const animalProfileSection =
     document.querySelector("#animal-profile-section");
@@ -158,7 +159,6 @@ const profileConservation =
 const askAboutAnimalButton =
     document.querySelector("#ask-about-animal-button");
 
-
 const chatMessages =
     document.querySelector("#chat-messages");
 
@@ -192,6 +192,7 @@ const chatError =
 // ============================================================
 
 function capitalizeWords(value) {
+
     if (!value) {
         return "";
     }
@@ -207,6 +208,7 @@ function capitalizeWords(value) {
 
 
 function formatFileSize(bytes) {
+
     if (bytes < 1024) {
         return `${bytes} B`;
     }
@@ -225,6 +227,7 @@ function formatFileSize(bytes) {
 
 
 function confidenceText(confidence) {
+
     if (confidence >= 80) {
         return "High confidence";
     }
@@ -241,6 +244,11 @@ function showError(
     element,
     message
 ) {
+
+    if (!element) {
+        return;
+    }
+
     element.textContent =
         message;
 
@@ -251,6 +259,11 @@ function showError(
 
 
 function hideError(element) {
+
+    if (!element) {
+        return;
+    }
+
     element.textContent =
         "";
 
@@ -261,6 +274,7 @@ function hideError(element) {
 
 
 function escapeHtml(value) {
+
     return String(value)
         .replaceAll(
             "&",
@@ -286,31 +300,37 @@ function escapeHtml(value) {
 
 
 // ============================================================
-// CHATBOT MARKDOWN FORMATTER
+// MARKDOWN FORMATTER
 // ============================================================
 
 function formatAssistantText(text) {
+
     const content =
         String(text || "");
+
 
     if (
         window.marked &&
         window.DOMPurify
     ) {
+
         marked.setOptions({
             gfm: true,
             breaks: true
         });
+
 
         const renderedMarkdown =
             marked.parse(
                 content
             );
 
+
         return DOMPurify.sanitize(
             renderedMarkdown
         );
     }
+
 
     return escapeHtml(
         content
@@ -327,51 +347,71 @@ function formatAssistantText(text) {
 
 async function checkSystemHealth() {
 
-    // Wildlife detector
+    // Wildlife Detector
     try {
+
         const response =
             await fetch(
                 `${API_BASE_URL}/api/health`
             );
 
+
         if (!response.ok) {
+
             throw new Error(
                 "Detector unavailable"
             );
         }
 
+
         const data =
             await response.json();
+
 
         if (
             data.status === "ok" &&
             data.model_exists
         ) {
-            detectorStatusDot.classList.add(
-                "online"
-            );
 
-            detectorStatusDot.classList.remove(
-                "offline"
-            );
+            detectorStatusDot
+                .classList
+                .add(
+                    "online"
+                );
+
+
+            detectorStatusDot
+                .classList
+                .remove(
+                    "offline"
+                );
+
 
             detectorStatusText.textContent =
                 "Wildlife AI Online";
 
         } else {
+
             throw new Error(
                 "Wildlife model unavailable"
             );
         }
 
     } catch (error) {
-        detectorStatusDot.classList.add(
-            "offline"
-        );
 
-        detectorStatusDot.classList.remove(
-            "online"
-        );
+        detectorStatusDot
+            .classList
+            .add(
+                "offline"
+            );
+
+
+        detectorStatusDot
+            .classList
+            .remove(
+                "online"
+            );
+
 
         detectorStatusText.textContent =
             "Wildlife AI Offline";
@@ -380,46 +420,66 @@ async function checkSystemHealth() {
 
     // Safari Guide
     try {
+
         const response =
             await fetch(
                 `${API_BASE_URL}/api/safari-guide/health`
             );
 
+
         if (!response.ok) {
+
             throw new Error(
                 "Safari Guide unavailable"
             );
         }
 
+
         const data =
             await response.json();
 
-        if (data.connected) {
-            guideStatusDot.classList.add(
-                "online"
-            );
 
-            guideStatusDot.classList.remove(
-                "offline"
-            );
+        if (data.connected) {
+
+            guideStatusDot
+                .classList
+                .add(
+                    "online"
+                );
+
+
+            guideStatusDot
+                .classList
+                .remove(
+                    "offline"
+                );
+
 
             guideStatusText.textContent =
                 "Safari Guide Online";
 
         } else {
+
             throw new Error(
                 "Safari Guide disconnected"
             );
         }
 
     } catch (error) {
-        guideStatusDot.classList.add(
-            "offline"
-        );
 
-        guideStatusDot.classList.remove(
-            "online"
-        );
+        guideStatusDot
+            .classList
+            .add(
+                "offline"
+            );
+
+
+        guideStatusDot
+            .classList
+            .remove(
+                "online"
+            );
+
 
         guideStatusText.textContent =
             "Safari Guide Offline";
@@ -434,6 +494,7 @@ async function checkSystemHealth() {
 heroDetectButton.addEventListener(
     "click",
     () => {
+
         detectorSection.scrollIntoView({
             behavior: "smooth"
         });
@@ -444,9 +505,11 @@ heroDetectButton.addEventListener(
 heroChatButton.addEventListener(
     "click",
     () => {
+
         chatSection.scrollIntoView({
             behavior: "smooth"
         });
+
 
         setTimeout(
             () =>
@@ -458,12 +521,13 @@ heroChatButton.addEventListener(
 
 
 // ============================================================
-// CHOOSE IMAGE
+// IMAGE SELECTION
 // ============================================================
 
 chooseImageButton.addEventListener(
     "click",
     event => {
+
         event.preventDefault();
         event.stopPropagation();
 
@@ -483,12 +547,14 @@ uploadArea.addEventListener(
             return;
         }
 
+
         if (
             event.target ===
             chooseImageButton
         ) {
             return;
         }
+
 
         fileInput.click();
     }
@@ -498,10 +564,13 @@ uploadArea.addEventListener(
 fileInput.addEventListener(
     "change",
     () => {
+
         const file =
             fileInput.files[0];
 
+
         if (file) {
+
             selectImage(
                 file
             );
@@ -515,9 +584,11 @@ fileInput.addEventListener(
 // ============================================================
 
 function selectImage(file) {
+
     hideError(
         detectorError
     );
+
 
     const allowedTypes = [
         "image/jpeg",
@@ -525,11 +596,13 @@ function selectImage(file) {
         "image/webp"
     ];
 
+
     if (
         !allowedTypes.includes(
             file.type
         )
     ) {
+
         showError(
             detectorError,
             "Please choose a JPG, JPEG, PNG or WEBP image."
@@ -538,40 +611,55 @@ function selectImage(file) {
         return;
     }
 
+
     state.selectedFile =
         file;
 
+
     selectedFileName.textContent =
         file.name;
+
 
     selectedFileSize.textContent =
         formatFileSize(
             file.size
         );
 
+
     fileInformation.classList.remove(
         "hidden"
     );
 
+
     const reader =
         new FileReader();
 
+
     reader.onload =
         event => {
+
             imagePreview.src =
                 event.target.result;
 
-            uploadPlaceholder.classList.add(
-                "hidden"
-            );
 
-            imagePreviewContainer.classList.remove(
-                "hidden"
-            );
+            uploadPlaceholder
+                .classList
+                .add(
+                    "hidden"
+                );
+
+
+            imagePreviewContainer
+                .classList
+                .remove(
+                    "hidden"
+                );
+
 
             detectButton.disabled =
                 false;
         };
+
 
     reader.readAsDataURL(
         file
@@ -586,6 +674,7 @@ function selectImage(file) {
 removeImageButton.addEventListener(
     "click",
     event => {
+
         event.preventDefault();
         event.stopPropagation();
 
@@ -595,33 +684,50 @@ removeImageButton.addEventListener(
 
 
 function clearSelectedImage() {
+
     state.selectedFile =
         null;
+
 
     fileInput.value =
         "";
 
+
     imagePreview.src =
         "";
 
-    uploadPlaceholder.classList.remove(
-        "hidden"
-    );
 
-    imagePreviewContainer.classList.add(
-        "hidden"
-    );
+    uploadPlaceholder
+        .classList
+        .remove(
+            "hidden"
+        );
 
-    fileInformation.classList.add(
-        "hidden"
-    );
+
+    imagePreviewContainer
+        .classList
+        .add(
+            "hidden"
+        );
+
+
+    fileInformation
+        .classList
+        .add(
+            "hidden"
+        );
+
+
+    detectionResult
+        .classList
+        .add(
+            "hidden"
+        );
+
 
     detectButton.disabled =
         true;
 
-    detectionResult.classList.add(
-        "hidden"
-    );
 
     hideError(
         detectorError
@@ -638,14 +744,19 @@ function clearSelectedImage() {
     "dragover"
 ].forEach(
     eventName => {
+
         uploadArea.addEventListener(
             eventName,
             event => {
+
                 event.preventDefault();
 
-                uploadArea.classList.add(
-                    "dragging"
-                );
+
+                uploadArea
+                    .classList
+                    .add(
+                        "dragging"
+                    );
             }
         );
     }
@@ -657,14 +768,19 @@ function clearSelectedImage() {
     "drop"
 ].forEach(
     eventName => {
+
         uploadArea.addEventListener(
             eventName,
             event => {
+
                 event.preventDefault();
 
-                uploadArea.classList.remove(
-                    "dragging"
-                );
+
+                uploadArea
+                    .classList
+                    .remove(
+                        "dragging"
+                    );
             }
         );
     }
@@ -674,11 +790,14 @@ function clearSelectedImage() {
 uploadArea.addEventListener(
     "drop",
     event => {
+
         const file =
             event.dataTransfer
                 .files[0];
 
+
         if (file) {
+
             selectImage(
                 file
             );
@@ -698,35 +817,46 @@ detectButton.addEventListener(
 
 
 async function detectWildlife() {
+
     if (
         !state.selectedFile
     ) {
         return;
     }
 
+
     hideError(
         detectorError
     );
 
+
     detectButton.disabled =
         true;
+
 
     detectButtonText.textContent =
         "Analyzing wildlife...";
 
-    detectorLoader.classList.remove(
-        "hidden"
-    );
+
+    detectorLoader
+        .classList
+        .remove(
+            "hidden"
+        );
+
 
     const formData =
         new FormData();
+
 
     formData.append(
         "file",
         state.selectedFile
     );
 
+
     try {
+
         const response =
             await fetch(
                 `${API_BASE_URL}/api/detect`,
@@ -739,80 +869,104 @@ async function detectWildlife() {
                 }
             );
 
+
         const data =
             await response.json();
 
+
         if (!response.ok) {
+
             throw new Error(
                 data.detail ||
                 "Animal detection failed."
             );
         }
 
+
         renderDetection(
             data
         );
+
 
         if (
             data.supported &&
             data.animal
         ) {
+
             state.detectedAnimal =
                 data.animal;
 
+
             state.detectionConfidence =
                 data.confidence;
+
 
             setAnimalContext(
                 data.animal,
                 data.confidence
             );
 
+
             await loadAnimalProfile(
                 data.animal
             );
 
         } else {
+
             clearAnimalContext();
 
-            animalProfileSection.classList.add(
-                "hidden"
-            );
+
+            animalProfileSection
+                .classList
+                .add(
+                    "hidden"
+                );
         }
 
     } catch (error) {
+
         showError(
             detectorError,
             error.message
         );
 
     } finally {
+
         detectButton.disabled =
             false;
+
 
         detectButtonText.textContent =
             "Detect Animal";
 
-        detectorLoader.classList.add(
-            "hidden"
-        );
+
+        detectorLoader
+            .classList
+            .add(
+                "hidden"
+            );
     }
 }
 
 
 // ============================================================
-// RENDER DETECTION RESULT
+// RENDER DETECTION
 // ============================================================
 
 function renderDetection(data) {
-    detectionResult.classList.remove(
-        "hidden"
-    );
+
+    detectionResult
+        .classList
+        .remove(
+            "hidden"
+        );
+
 
     const animalName =
         data.supported
             ? data.animal
             : data.predicted_class;
+
 
     detectedAnimal.textContent =
         data.supported
@@ -821,15 +975,18 @@ function renderDetection(data) {
             )
             : "Unsupported / Uncertain";
 
+
     confidenceValue.textContent =
         `${Number(
             data.confidence
         ).toFixed(2)}%`;
 
+
     confidenceLabel.textContent =
         confidenceText(
             data.confidence
         );
+
 
     confidenceFill.style.width =
         `${Math.min(
@@ -839,20 +996,24 @@ function renderDetection(data) {
             100
         )}%`;
 
+
     if (
         data.supported
     ) {
+
         predictionStatus.textContent =
             `Recognized as ${capitalizeWords(
                 data.animal
             )}.`;
 
     } else {
+
         predictionStatus.textContent =
             `Best model match: ${capitalizeWords(
                 data.predicted_class
             )}, but confidence is below the ${data.threshold}% recognition threshold.`;
     }
+
 
     renderTopMatches(
         data.top_matches ||
@@ -866,18 +1027,23 @@ function renderDetection(data) {
 // ============================================================
 
 function renderTopMatches(matches) {
+
     matchesList.innerHTML =
         "";
 
+
     matches.forEach(
         match => {
+
             const element =
                 document.createElement(
                     "div"
                 );
 
+
             element.className =
                 "match-item";
+
 
             element.innerHTML = `
                 <span class="match-name">
@@ -895,6 +1061,7 @@ function renderTopMatches(matches) {
                 </span>
             `;
 
+
             matchesList.appendChild(
                 element
             );
@@ -904,13 +1071,15 @@ function renderTopMatches(matches) {
 
 
 // ============================================================
-// LOAD ANIMAL PROFILE
+// ANIMAL PROFILE
 // ============================================================
 
 async function loadAnimalProfile(
     animal
 ) {
+
     try {
+
         const response =
             await fetch(
                 `${API_BASE_URL}/api/animals/${encodeURIComponent(
@@ -918,24 +1087,30 @@ async function loadAnimalProfile(
                 )}`
             );
 
+
         const data =
             await response.json();
 
+
         if (!response.ok) {
+
             throw new Error(
                 data.detail ||
                 "Animal profile could not be loaded."
             );
         }
 
+
         state.animalProfile =
             data;
+
 
         renderAnimalProfile(
             data
         );
 
     } catch (error) {
+
         console.error(
             "Profile error:",
             error
@@ -944,53 +1119,61 @@ async function loadAnimalProfile(
 }
 
 
-// ============================================================
-// RENDER ANIMAL PROFILE
-// ============================================================
-
 function renderAnimalProfile(
     profile
 ) {
+
     profileAnimalName.textContent =
         capitalizeWords(
             profile.animal
         );
 
+
     profileScientificName.textContent =
         profile.scientific_name ||
         "Scientific name unavailable";
+
 
     profileHabitat.textContent =
         profile.habitat ||
         "Information unavailable.";
 
+
     profileDiet.textContent =
         profile.diet ||
         "Information unavailable.";
+
 
     profileSocial.textContent =
         profile.social_behavior ||
         "Information unavailable.";
 
+
     profileFeeding.textContent =
         profile.food_acquisition ||
         "Information unavailable.";
+
 
     profileReproduction.textContent =
         profile.reproduction ||
         "Information unavailable.";
 
+
     profileLifespan.textContent =
         profile.lifespan ||
         "Information unavailable.";
+
 
     profileConservation.textContent =
         profile.conservation ||
         "Information unavailable.";
 
-    animalProfileSection.classList.remove(
-        "hidden"
-    );
+
+    animalProfileSection
+        .classList
+        .remove(
+            "hidden"
+        );
 }
 
 
@@ -1002,11 +1185,14 @@ function setAnimalContext(
     animal,
     confidence
 ) {
+
     state.detectedAnimal =
         animal;
 
+
     state.detectionConfidence =
         confidence;
+
 
     contextAnimal.textContent =
         `${capitalizeWords(
@@ -1015,9 +1201,13 @@ function setAnimalContext(
             confidence
         ).toFixed(2)}%`;
 
-    animalContext.classList.remove(
-        "hidden"
-    );
+
+    animalContext
+        .classList
+        .remove(
+            "hidden"
+        );
+
 
     conversationStatus.textContent =
         `Using ${capitalizeWords(
@@ -1027,21 +1217,29 @@ function setAnimalContext(
 
 
 function clearAnimalContext() {
+
     state.detectedAnimal =
         null;
+
 
     state.detectionConfidence =
         null;
 
+
     state.animalProfile =
         null;
+
 
     contextAnimal.textContent =
         "";
 
-    animalContext.classList.add(
-        "hidden"
-    );
+
+    animalContext
+        .classList
+        .add(
+            "hidden"
+        );
+
 
     conversationStatus.textContent =
         "Ready";
@@ -1055,28 +1253,34 @@ clearContextButton.addEventListener(
 
 
 // ============================================================
-// ASK SAFARI GUIDE ABOUT DETECTED ANIMAL
+// ASK ABOUT DETECTED ANIMAL
 // ============================================================
 
 askAboutAnimalButton.addEventListener(
     "click",
     () => {
+
         if (
             !state.detectedAnimal
         ) {
             return;
         }
 
+
         chatInput.value =
             `Tell me about ${capitalizeWords(
                 state.detectedAnimal
             )} and where I can see them in Tanzania.`;
 
+
         resizeChatInput();
 
+
         chatSection.scrollIntoView({
-            behavior: "smooth"
+            behavior:
+                "smooth"
         });
+
 
         setTimeout(
             () =>
@@ -1086,19 +1290,24 @@ askAboutAnimalButton.addEventListener(
     }
 );
 
+
 // ============================================================
 // VOICE OUTPUT / TEXT TO SPEECH
 // ============================================================
 
-let activeSpeechButton = null;
-
-
 function getPlainTextFromMarkdown(text) {
+
     const temporaryElement =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
+
 
     temporaryElement.innerHTML =
-        formatAssistantText(text);
+        formatAssistantText(
+            text
+        );
+
 
     return (
         temporaryElement.textContent ||
@@ -1108,27 +1317,53 @@ function getPlainTextFromMarkdown(text) {
 }
 
 
+function restoreConversationStatus() {
+
+    conversationStatus.textContent =
+        state.detectedAnimal
+            ? `Using ${capitalizeWords(
+                state.detectedAnimal
+            )} context`
+            : "Ready";
+}
+
+
 function stopSpeaking() {
+
     if (
-        "speechSynthesis" in window
+        "speechSynthesis"
+        in window
     ) {
+
         window.speechSynthesis.cancel();
     }
 
-    if (activeSpeechButton) {
+
+    if (
+        activeSpeechButton
+    ) {
+
         activeSpeechButton.textContent =
             "🔊";
+
 
         activeSpeechButton.title =
             "Read response aloud";
 
-        activeSpeechButton.classList.remove(
-            "speaking"
-        );
+
+        activeSpeechButton
+            .classList
+            .remove(
+                "speaking"
+            );
+
 
         activeSpeechButton =
             null;
     }
+
+
+    restoreConversationStatus();
 }
 
 
@@ -1138,8 +1373,12 @@ function speakAssistantResponse(
 ) {
 
     if (
-        !("speechSynthesis" in window)
+        !(
+            "speechSynthesis"
+            in window
+        )
     ) {
+
         showError(
             chatError,
             "Voice output is not supported by this browser."
@@ -1149,11 +1388,13 @@ function speakAssistantResponse(
     }
 
 
-    // Clicking the active speaker button stops playback.
     if (
-        activeSpeechButton === button &&
-        window.speechSynthesis.speaking
+        activeSpeechButton ===
+            button &&
+        window.speechSynthesis
+            .speaking
     ) {
+
         stopSpeaking();
 
         return;
@@ -1161,6 +1402,7 @@ function speakAssistantResponse(
 
 
     stopSpeaking();
+
 
     hideError(
         chatError
@@ -1173,7 +1415,9 @@ function speakAssistantResponse(
         );
 
 
-    if (!plainText) {
+    if (
+        !plainText
+    ) {
         return;
     }
 
@@ -1206,15 +1450,21 @@ function speakAssistantResponse(
             activeSpeechButton =
                 button;
 
+
             button.textContent =
                 "⏹";
+
 
             button.title =
                 "Stop reading";
 
-            button.classList.add(
-                "speaking"
-            );
+
+            button
+                .classList
+                .add(
+                    "speaking"
+                );
+
 
             conversationStatus.textContent =
                 "Reading response...";
@@ -1224,25 +1474,32 @@ function speakAssistantResponse(
     utterance.onend =
         () => {
 
+            if (
+                activeSpeechButton ===
+                button
+            ) {
+
+                activeSpeechButton =
+                    null;
+            }
+
+
             button.textContent =
                 "🔊";
+
 
             button.title =
                 "Read response aloud";
 
-            button.classList.remove(
-                "speaking"
-            );
 
-            activeSpeechButton =
-                null;
+            button
+                .classList
+                .remove(
+                    "speaking"
+                );
 
-            conversationStatus.textContent =
-                state.detectedAnimal
-                    ? `Using ${capitalizeWords(
-                        state.detectedAnimal
-                    )} context`
-                    : "Ready";
+
+            restoreConversationStatus();
         };
 
 
@@ -1254,17 +1511,47 @@ function speakAssistantResponse(
                 event.error
             );
 
-            stopSpeaking();
 
             if (
                 event.error !==
-                "canceled"
+                    "canceled" &&
+                event.error !==
+                    "interrupted"
             ) {
+
                 showError(
                     chatError,
                     "The Safari Guide response could not be read aloud."
                 );
             }
+
+
+            if (
+                activeSpeechButton ===
+                button
+            ) {
+
+                activeSpeechButton =
+                    null;
+            }
+
+
+            button.textContent =
+                "🔊";
+
+
+            button.title =
+                "Read response aloud";
+
+
+            button
+                .classList
+                .remove(
+                    "speaking"
+                );
+
+
+            restoreConversationStatus();
         };
 
 
@@ -1272,6 +1559,7 @@ function speakAssistantResponse(
         utterance
     );
 }
+
 
 // ============================================================
 // CHAT MESSAGE RENDERING
@@ -1397,6 +1685,7 @@ function renderMessage(
                 speakButton.disabled =
                     true;
 
+
                 speakButton.title =
                     "Voice output is not supported by this browser";
 
@@ -1420,77 +1709,6 @@ function renderMessage(
     chatMessages.scrollTop =
         chatMessages.scrollHeight;
 }
-    const message =
-        document.createElement(
-            "div"
-        );
-
-    message.className =
-        `message ${
-            role === "user"
-                ? "user-message"
-                : "assistant-message"
-        }`;
-
-    const avatar =
-        role === "user"
-            ? "👤"
-            : "🧭";
-
-    const author =
-        role === "user"
-            ? "You"
-            : "Safari Guide";
-
-    let formattedContent;
-
-    if (
-        role === "assistant"
-    ) {
-        formattedContent = `
-            <div class="assistant-response">
-                ${formatAssistantText(
-                    text
-                )}
-            </div>
-        `;
-
-    } else {
-        formattedContent = `
-            <p>
-                ${escapeHtml(
-                    text
-                ).replace(
-                    /\n/g,
-                    "<br>"
-                )}
-            </p>
-        `;
-    }
-
-    message.innerHTML = `
-        <div class="message-avatar">
-            ${avatar}
-        </div>
-
-        <div class="message-content">
-
-            <span class="message-author">
-                ${author}
-            </span>
-
-            ${formattedContent}
-
-        </div>
-    `;
-
-    chatMessages.appendChild(
-        message
-    );
-
-    chatMessages.scrollTop =
-        chatMessages.scrollHeight;
-}
 
 
 // ============================================================
@@ -1500,14 +1718,21 @@ function renderMessage(
 chatForm.addEventListener(
     "submit",
     async event => {
+
         event.preventDefault();
 
-        const message =
-            chatInput.value.trim();
 
-        if (!message) {
+        const message =
+            chatInput.value
+                .trim();
+
+
+        if (
+            !message
+        ) {
             return;
         }
+
 
         await sendChatMessage(
             message
@@ -1523,36 +1748,54 @@ chatForm.addEventListener(
 async function sendChatMessage(
     message
 ) {
+
     hideError(
         chatError
     );
+
+
+    stopSpeaking();
+
 
     renderMessage(
         "user",
         message
     );
 
+
     chatInput.value =
         "";
 
+
     resizeChatInput();
 
-    typingIndicator.classList.remove(
-        "hidden"
-    );
+
+    typingIndicator
+        .classList
+        .remove(
+            "hidden"
+        );
+
 
     sendButton.disabled =
         true;
 
-    if (voiceButton) {
+
+    if (
+        voiceButton
+    ) {
+
         voiceButton.disabled =
             true;
     }
 
+
     conversationStatus.textContent =
         "Safari Guide is thinking...";
 
+
     const requestBody = {
+
         message,
 
         history:
@@ -1573,7 +1816,9 @@ async function sendChatMessage(
                 : null
     };
 
+
     try {
+
         const response =
             await fetch(
                 `${API_BASE_URL}/api/chat`,
@@ -1593,23 +1838,31 @@ async function sendChatMessage(
                 }
             );
 
+
         const data =
             await response.json();
 
-        if (!response.ok) {
+
+        if (
+            !response.ok
+        ) {
+
             throw new Error(
                 data.detail ||
                 "Safari Guide could not answer."
             );
         }
 
+
         renderMessage(
             "assistant",
             data.reply
         );
 
+
         state.conversationId =
             data.conversation_id;
+
 
         state.history.push(
             {
@@ -1628,6 +1881,7 @@ async function sendChatMessage(
             }
         );
 
+
         conversationStatus.textContent =
             state.detectedAnimal
                 ? `Using ${capitalizeWords(
@@ -1636,29 +1890,38 @@ async function sendChatMessage(
                 : "Connected";
 
     } catch (error) {
+
         showError(
             chatError,
             error.message
         );
 
+
         conversationStatus.textContent =
             "Connection error";
 
     } finally {
-        typingIndicator.classList.add(
-            "hidden"
-        );
+
+        typingIndicator
+            .classList
+            .add(
+                "hidden"
+            );
+
 
         sendButton.disabled =
             false;
+
 
         if (
             voiceButton &&
             recognition
         ) {
+
             voiceButton.disabled =
                 false;
         }
+
 
         chatInput.focus();
     }
@@ -1666,7 +1929,7 @@ async function sendChatMessage(
 
 
 // ============================================================
-// SUGGESTED CHAT PROMPTS
+// SUGGESTED PROMPTS
 // ============================================================
 
 document
@@ -1675,17 +1938,18 @@ document
     )
     .forEach(
         button => {
+
             button.addEventListener(
                 "click",
                 () => {
-                    const prompt =
+
+                    chatInput.value =
                         button.dataset
                             .prompt;
 
-                    chatInput.value =
-                        prompt;
 
                     resizeChatInput();
+
 
                     chatInput.focus();
                 }
@@ -1701,18 +1965,26 @@ document
 newChatButton.addEventListener(
     "click",
     () => {
-        state.conversationId =
-            null;
 
-        state.history =
-            [];
+        stopSpeaking();
+
 
         if (
             recognition &&
             isListening
         ) {
+
             recognition.stop();
         }
+
+
+        state.conversationId =
+            null;
+
+
+        state.history =
+            [];
+
 
         chatMessages.innerHTML = `
             <div class="message assistant-message">
@@ -1728,11 +2000,13 @@ newChatButton.addEventListener(
                     </span>
 
                     <div class="assistant-response">
+
                         <p>
                             New conversation started.
                             Ask me anything about Tanzania's
                             wildlife and safari destinations.
                         </p>
+
                     </div>
 
                 </div>
@@ -1740,16 +2014,14 @@ newChatButton.addEventListener(
             </div>
         `;
 
-        conversationStatus.textContent =
-            state.detectedAnimal
-                ? `Using ${capitalizeWords(
-                    state.detectedAnimal
-                )} context`
-                : "Ready";
+
+        restoreConversationStatus();
+
 
         hideError(
             chatError
         );
+
 
         chatInput.focus();
     }
@@ -1757,27 +2029,13 @@ newChatButton.addEventListener(
 
 
 // ============================================================
-// VOICE INPUT
+// VOICE INPUT / SPEECH RECOGNITION
 // ============================================================
 
 const SpeechRecognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
-
-let recognition =
-    null;
-
-let isListening =
-    false;
-
-let voiceTextBeforeListening =
-    "";
-
-
-// ============================================================
-// VOICE RECOGNITION AVAILABLE
-// ============================================================
 
 if (
     SpeechRecognition &&
@@ -1806,7 +2064,7 @@ if (
 
 
     // --------------------------------------------------------
-    // VOICE BUTTON
+    // MICROPHONE BUTTON
     // --------------------------------------------------------
 
     voiceButton.addEventListener(
@@ -1818,28 +2076,35 @@ if (
             );
 
 
-            // Stop if currently listening
             if (
                 isListening
             ) {
+
                 recognition.stop();
 
                 return;
             }
 
 
+            stopSpeaking();
+
+
             voiceTextBeforeListening =
-                chatInput.value.trim();
+                chatInput.value
+                    .trim();
 
 
             try {
+
                 recognition.start();
 
             } catch (error) {
+
                 console.error(
                     "Could not start speech recognition:",
                     error
                 );
+
 
                 showError(
                     chatError,
@@ -1856,23 +2121,31 @@ if (
 
     recognition.onstart =
         () => {
+
             isListening =
                 true;
 
-            voiceButton.classList.add(
-                "listening"
-            );
+
+            voiceButton
+                .classList
+                .add(
+                    "listening"
+                );
+
 
             voiceButton.textContent =
                 "⏹";
+
 
             voiceButton.setAttribute(
                 "aria-label",
                 "Stop listening"
             );
 
+
             voiceButton.title =
                 "Stop listening";
+
 
             conversationStatus.textContent =
                 "Listening...";
@@ -1889,15 +2162,14 @@ if (
             let transcript =
                 "";
 
+
             for (
-                let index =
-                    event.resultIndex;
-
+                let index = 0;
                 index <
-                event.results.length;
-
+                    event.results.length;
                 index++
             ) {
+
                 transcript +=
                     event.results[
                         index
@@ -1912,10 +2184,13 @@ if (
             if (
                 voiceTextBeforeListening
             ) {
+
                 chatInput.value =
-                    `${voiceTextBeforeListening} ${spokenText}`.trim();
+                    `${voiceTextBeforeListening} ${spokenText}`
+                        .trim();
 
             } else {
+
                 chatInput.value =
                     spokenText;
             }
@@ -1935,28 +2210,29 @@ if (
             isListening =
                 false;
 
-            voiceButton.classList.remove(
-                "listening"
-            );
+
+            voiceButton
+                .classList
+                .remove(
+                    "listening"
+                );
+
 
             voiceButton.textContent =
                 "🎙️";
+
 
             voiceButton.setAttribute(
                 "aria-label",
                 "Speak your question"
             );
 
+
             voiceButton.title =
                 "Speak your question";
 
 
-            conversationStatus.textContent =
-                state.detectedAnimal
-                    ? `Using ${capitalizeWords(
-                        state.detectedAnimal
-                    )} context`
-                    : "Ready";
+            restoreConversationStatus();
 
 
             chatInput.focus();
@@ -1980,9 +2256,11 @@ if (
                 false;
 
 
-            voiceButton.classList.remove(
-                "listening"
-            );
+            voiceButton
+                .classList
+                .remove(
+                    "listening"
+                );
 
 
             voiceButton.textContent =
@@ -2007,6 +2285,7 @@ if (
                 event.error ===
                 "not-allowed"
             ) {
+
                 errorMessage =
                     "Microphone permission was denied. Please allow microphone access in your browser.";
             }
@@ -2016,6 +2295,7 @@ if (
                 event.error ===
                 "audio-capture"
             ) {
+
                 errorMessage =
                     "No microphone was found. Check your microphone settings.";
             }
@@ -2025,6 +2305,7 @@ if (
                 event.error ===
                 "no-speech"
             ) {
+
                 errorMessage =
                     "No speech was detected. Please speak and try again.";
             }
@@ -2034,6 +2315,7 @@ if (
                 event.error ===
                 "network"
             ) {
+
                 errorMessage =
                     "Voice recognition could not connect. Check your internet connection and try again.";
             }
@@ -2043,6 +2325,7 @@ if (
                 event.error !==
                 "aborted"
             ) {
+
                 showError(
                     chatError,
                     errorMessage
@@ -2050,17 +2333,12 @@ if (
             }
 
 
-            conversationStatus.textContent =
-                state.detectedAnimal
-                    ? `Using ${capitalizeWords(
-                        state.detectedAnimal
-                    )} context`
-                    : "Ready";
+            restoreConversationStatus();
         };
 
 
 // ============================================================
-// VOICE RECOGNITION NOT AVAILABLE
+// VOICE INPUT NOT SUPPORTED
 // ============================================================
 
 } else if (
@@ -2070,8 +2348,10 @@ if (
     voiceButton.disabled =
         true;
 
+
     voiceButton.title =
         "Voice input is not supported by this browser";
+
 
     voiceButton.setAttribute(
         "aria-label",
@@ -2085,8 +2365,10 @@ if (
 // ============================================================
 
 function resizeChatInput() {
+
     chatInput.style.height =
         "auto";
+
 
     chatInput.style.height =
         `${Math.min(
@@ -2104,7 +2386,7 @@ chatInput.addEventListener(
 
 // ============================================================
 // ENTER TO SEND
-// SHIFT + ENTER FOR NEW LINE
+// SHIFT + ENTER = NEW LINE
 // ============================================================
 
 chatInput.addEventListener(
@@ -2112,10 +2394,13 @@ chatInput.addEventListener(
     event => {
 
         if (
-            event.key === "Enter" &&
+            event.key ===
+                "Enter" &&
             !event.shiftKey
         ) {
+
             event.preventDefault();
+
 
             chatForm.requestSubmit();
         }
@@ -2132,15 +2417,11 @@ async function initializeApplication() {
     conversationStatus.textContent =
         "Checking services...";
 
+
     await checkSystemHealth();
 
 
-    conversationStatus.textContent =
-        state.detectedAnimal
-            ? `Using ${capitalizeWords(
-                state.detectedAnimal
-            )} context`
-            : "Ready";
+    restoreConversationStatus();
 }
 
 
